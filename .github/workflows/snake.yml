@@ -1,0 +1,39 @@
+name: Generate Snake Animation
+
+on:
+  schedule:
+    # Este cron job executa a cada 6 horas (pode mudar)
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Generate Snake Animation
+        uses: Platane/snk@v3
+        with:
+          # Ele usa automaticamente o seu nome de usuário
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            # Gera a versão para o modo Claro
+            dist/github-contribution-grid-snake.svg
+            # Gera a versão para o modo Escuro (com o palette customizado)
+            dist/github-contribution-grid-snake-dark.svg? palette=github-dark
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Push new files to output branch
+        # Este Action empurra os arquivos gerados para a branch 'output'
+        uses: crazy-max/ghaction-github-pages@v3.1.0
+        with:
+          target_branch: output
+          build_dir: dist
+          commit_message: Update snake animations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
